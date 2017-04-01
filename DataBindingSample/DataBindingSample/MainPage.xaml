@@ -1,0 +1,44 @@
+﻿<Page
+    x:Class="DataBindingSample.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:DataBindingSample"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Viewbox>
+            <StackPanel>
+
+                <TextBox Text="{Binding MyTextValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                         VerticalAlignment="Center"
+                         HorizontalAlignment="Center"
+                         Width="200" 
+                         Margin="0 50 0 5"/>
+
+                <Button Content="{Binding MyTextValue, UpdateSourceTrigger=PropertyChanged}"
+                        FontSize="{Binding MyFontSize, UpdateSourceTrigger=PropertyChanged}"
+                        HorizontalAlignment="Center"
+                        Width="200" Height="50" 
+                        Margin="0 0 0 15"/>
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Adjust the FontSize: " 
+                               VerticalAlignment="Center"
+                               Margin="10 0 5 0"/>
+
+                    <TextBox Text="{Binding MyFontSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                             VerticalContentAlignment="Center"
+                             Margin="5 0 10 0"
+                             Width="80"/>
+                </StackPanel>
+
+                <Slider Value="{Binding MyFontSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                        Minimum="1" Maximum="30"
+                        Width="180" Margin="10 0 10 10"/>
+
+            </StackPanel>
+        </Viewbox>
+    </Grid>
+</Page>
