@@ -1,6 +1,78 @@
-CREATE SEQUENCE acs_user_seq;CREATE SEQUENCE acs_role_seq;
-CREATE TABLE acs_user (    id NUMBER DEFAULT acs_user_seq.NEXTVAL NOT NULL,    referenceId VARCHAR2(255) NOT NULL,    username VARCHAR2(100) NOT NULL,    password VARCHAR2(200) NOT NULL,    enabled NUMBER(1) DEFAULT 1 NOT NULL,    credentialsexpired NUMBER(1) DEFAULT 0 NOT NULL,    expired NUMBER(1) DEFAULT 0 NOT NULL,    locked NUMBER(1) DEFAULT 0 NOT NULL,    version NUMBER(1) NOT NULL,    createdBy VARCHAR2(100) NOT NULL,    createdAt TIMESTAMP NOT NULL,    updatedBy VARCHAR2(100) DEFAULT NULL,    updatedAt TIMESTAMP DEFAULT NULL,    PRIMARY KEY (id),    CONSTRAINT UQ_Account_ReferenceId UNIQUE (referenceId),    CONSTRAINT UQ_Account_Username UNIQUE (username) ); 
-CREATE TABLE acs_role (    id NUMBER DEFAULT acs_role_seq.NEXTVAL NOT NULL,    code VARCHAR2(50) NOT NULL,    label VARCHAR2(100) NOT NULL,    ordinal NUMBER(1) NOT NULL,    effectiveAt TIMESTAMP NOT NULL,    expiresAt TIMESTAMP DEFAULT NULL,    createdAt TIMESTAMP NOT NULL,    PRIMARY KEY (id),    CONSTRAINT UQ_Role_Code UNIQUE (code) ); 
-CREATE TABLE acs_user_role (    accountId NUMBER NOT NULL,    roleId NUMBER NOT NULL,    PRIMARY KEY (accountId, roleId),    CONSTRAINT FK_AccountRole_AccountId FOREIGN KEY (accountId) REFERENCES acs_user (id),    CONSTRAINT FK_AccountRole_RoleId FOREIGN KEY (roleId) REFERENCES acs_role (id) ); 
--- password is 'password' INSERT INTO acs_user (referenceId, username, password, enabled, credentialsexpired, expired, locked, version, createdBy, createdAt, updatedBy, updatedAt) VALUES ('a07bd221-3ecd-4893-a0f0-78d7c0fbf94e', 'user', '$2a$10$9/44Rne7kQqPXa0cY6NfG.3XzScMrCxFYjapoLq/wFmHz7EC9praK', 1, 0, 0, 0, 0, 'user', SYSTIMESTAMP, NULL, NULL); -- password is 'operations' INSERT INTO acs_user (referenceId, username, password, enabled, credentialsexpired, expired, locked, version, createdBy, createdAt, updatedBy, updatedAt) VALUES ('7bd137c8-ab64-4a45-bf2d-d9bae3574622', 'operations', '$2a$10$CoMVfutnv1qZ.fNlHY1Na.rteiJhsDF0jB1o.76qXcfdWN6As27Zm', 1, 0, 0, 0, 0, 'user', SYSTIMESTAMP, NULL, NULL);  INSERT INTO acs_role (code, label, ordinal, effectiveAt, expiresAt, createdAt) VALUES ('ROLE_USER', 'User', 0, SYSTIMESTAMP, NULL, SYSTIMESTAMP); INSERT INTO acs_role (code, label, ordinal, effectiveAt, expiresAt, createdAt) VALUES ('ROLE_ADMIN', 'Admin', 1, SYSTIMESTAMP, NULL, SYSTIMESTAMP); INSERT INTO acs_role (code, label, ordinal, effectiveAt, expiresAt, createdAt) VALUES ('ROLE_SYSADMIN', 'System Admin', 2, SYSTIMESTAMP, NULL, SYSTIMESTAMP);  INSERT INTO acs_user_role (accountId, roleId) SELECT a.id, r.id FROM acs_user a, acs_role r WHERE a.username = 'user' and r.id = 1; INSERT INTO acs_user_role (accountId, roleId) SELECT a.id, r.id FROM acs_user a, acs_role r WHERE a.username = 'operations' and r.id = 3; 
-select username from all_users
+CREATE SEQUENCE acs_user_seq;
+CREATE SEQUENCE acs_role_seq;
+
+CREATE TABLE acs_user (    
+--id NUMBER DEFAULT acs_user_seq.NEXTVAL NOT NULL,    
+id NUMBER NOT NULL,    
+referenceId VARCHAR2(255) NOT NULL,    
+username VARCHAR2(100) NOT NULL,    
+password VARCHAR2(200) NOT NULL,    
+enabled NUMBER(1) DEFAULT 1 NOT NULL,    
+credentialsexpired NUMBER(1) DEFAULT 0 NOT NULL,    
+expired NUMBER(1) DEFAULT 0 NOT NULL,    
+locked NUMBER(1) DEFAULT 0 NOT NULL,    
+version NUMBER(1) NOT NULL,    
+createdBy VARCHAR2(100) NOT NULL,    
+createdAt TIMESTAMP NOT NULL,    
+updatedBy VARCHAR2(100) DEFAULT NULL,    
+updatedAt TIMESTAMP DEFAULT NULL,    
+PRIMARY KEY (id),    
+CONSTRAINT UQ_Account_ReferenceId UNIQUE (referenceId),    
+CONSTRAINT UQ_Account_Username UNIQUE (username) ); 
+
+CREATE TABLE acs_role (    
+--id NUMBER DEFAULT acs_role_seq.NEXTVAL NOT NULL,    
+id NUMBER NOT NULL,    
+code VARCHAR2(50) NOT NULL,    
+label VARCHAR2(100) NOT NULL,    
+ordinal NUMBER(1) NOT NULL,    
+effectiveAt TIMESTAMP NOT NULL,    
+expiresAt TIMESTAMP DEFAULT NULL,    
+createdAt TIMESTAMP NOT NULL,    
+PRIMARY KEY (id),    
+CONSTRAINT UQ_Role_Code UNIQUE (code) ); 
+
+
+CREATE TABLE acs_user_role (    
+accountId NUMBER NOT NULL,    
+roleId NUMBER NOT NULL,    
+PRIMARY KEY (accountId, roleId),    
+CONSTRAINT FK_AccountRole_AccountId FOREIGN KEY (accountId) REFERENCES acs_user (id),    
+CONSTRAINT FK_AccountRole_RoleId FOREIGN KEY (roleId) REFERENCES acs_role (id) ); 
+
+CREATE OR REPLACE TRIGGER ACS_USER_BEFORE_INSERT1 
+BEFORE INSERT ON ACS_USER FOR EACH ROW
+DECLARE
+    v_id number;
+BEGIN
+    select acs_user_seq.nextval into v_id
+    from dual;
+
+    :new.id := v_id;
+
+END;
+
+CREATE OR REPLACE TRIGGER ACS_ROLE_BEFORE_INSERT1 
+BEFORE INSERT ON ACS_ROLE FOR EACH ROW
+DECLARE
+    v_id number;
+BEGIN
+    select acs_role_seq.nextval into v_id
+    from dual;
+
+    :new.id := v_id;
+
+END;
+
+-- password is 'password' 
+INSERT INTO acs_user (referenceId, username, password, enabled, credentialsexpired, expired, locked, version, createdBy, createdAt, updatedBy, updatedAt) VALUES ('a07bd221-3ecd-4893-a0f0-78d7c0fbf94e', 'user', '$2a$10$9/44Rne7kQqPXa0cY6NfG.3XzScMrCxFYjapoLq/wFmHz7EC9praK', 1, 0, 0, 0, 0, 'user', SYSTIMESTAMP, NULL, NULL); 
+-- password is 'operations' 
+INSERT INTO acs_user (referenceId, username, password, enabled, credentialsexpired, expired, locked, version, createdBy, createdAt, updatedBy, updatedAt) VALUES ('7bd137c8-ab64-4a45-bf2d-d9bae3574622', 'operations', '$2a$10$CoMVfutnv1qZ.fNlHY1Na.rteiJhsDF0jB1o.76qXcfdWN6As27Zm', 1, 0, 0, 0, 0, 'user', SYSTIMESTAMP, NULL, NULL);  
+
+INSERT INTO acs_role (code, label, ordinal, effectiveAt, expiresAt, createdAt) VALUES ('ROLE_USER', 'User', 0, SYSTIMESTAMP, NULL, SYSTIMESTAMP); 
+INSERT INTO acs_role (code, label, ordinal, effectiveAt, expiresAt, createdAt) VALUES ('ROLE_ADMIN', 'Admin', 1, SYSTIMESTAMP, NULL, SYSTIMESTAMP); 
+INSERT INTO acs_role (code, label, ordinal, effectiveAt, expiresAt, createdAt) VALUES ('ROLE_SYSADMIN', 'System Admin', 2, SYSTIMESTAMP, NULL, SYSTIMESTAMP); 
+
+INSERT INTO acs_user_role (accountId, roleId) SELECT a.id, r.id FROM acs_user a, acs_role r WHERE a.username = 'user' and r.id = 1; 
+INSERT INTO acs_user_role (accountId, roleId) SELECT a.id, r.id FROM acs_user a, acs_role r WHERE a.username = 'operations' and r.id = 3; 
+
